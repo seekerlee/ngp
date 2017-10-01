@@ -35,12 +35,13 @@ func main() {
 	}
 }
 
-func write2js(wt io.Writer, go2jsMessage <-chan string) {
+func write2js(msgWriter *bufio.Writer, go2jsMessage <-chan string) {
 	for {
 		// I will run forever
 		msg := <-go2jsMessage
 		fmt.Println("write to js: " + msg)
-		wt.Write([]byte(msg))
+		msgWriter.Write([]byte(msg))
+		msgWriter.Flush()
 	}
 }
 
@@ -52,12 +53,11 @@ func handleRequest(conn net.Conn) {
 	defer conn.Close()
 
 	go2jsMessage := make(chan string)
-	lenn, err := msgWriter.WriteString("channel set up!")
+	_, err := msgWriter.WriteString("channel set up!")
 	if err != nil {
 		fmt.Println("Cannot write to connection.\n", err)
 		return
 	}
-	fmt.Println("write len: ", lenn)
 	msgWriter.Flush()
 	go write2js(msgWriter, go2jsMessage)
 
