@@ -1,0 +1,25 @@
+func ipcTestClient(srv *Server, fl *flakeyListener) (*Client, net.Listener) {
+	// Listen on a random endpoint.
+	endpoint := fmt.Sprintf("go-ethereum-test-ipc-%d-%d", os.Getpid(), rand.Int63())
+	if runtime.GOOS == "windows" {
+		endpoint = `\\.\pipe\` + endpoint
+	} else {
+		endpoint = os.TempDir() + "/" + endpoint
+	}
+	l, err := ipcListen(endpoint)
+	if err != nil {
+		panic(err)
+	}
+	// Connect the listener to the server.
+	if fl != nil {
+		fl.Listener = l
+		l = fl
+	}
+	go srv.ServeListener(l)
+	// Connect the client.
+	client, err := Dial(endpoint)
+	if err != nil {
+		panic(err)
+	}
+	return client, l
+}
