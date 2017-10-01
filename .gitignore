@@ -1,0 +1,4 @@
+
+nodejs/src/node_modules/*
+go/pkg/*
+go/bin/*
