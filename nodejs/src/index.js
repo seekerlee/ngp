@@ -17,4 +17,6 @@ client.on('end', function() {
     console.log('Client: on end');
 })
 
-client.write('Hello, server! Love, Client.');
+client.write('Hello, server! Love, Client.\n');
+client.write('2222\n');
+client.write('\n');
