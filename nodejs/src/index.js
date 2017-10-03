@@ -1,7 +1,16 @@
-var net = require('net');
+const net = require('net');
+const os = require('os');
+const _ = require('lodash');
 
 var PIPE_NAME = "secrettunnel";
-var PIPE_PATH = "\\\\.\\pipe\\" + PIPE_NAME;
+var PIPE_PATH
+const platform = os.platform()
+if(platform == 'win32') {
+    PIPE_PATH = "\\\\.\\pipe\\" + PIPE_NAME
+} else {
+    PIPE_PATH = _.trimEnd(os.tmpdir(), '/') + '/' + PIPE_NAME
+}
+
 
 
 var client = net.connect(PIPE_PATH, function() {

@@ -19,7 +19,6 @@
 package ipc
 
 import (
-	"context"
 	"net"
 	"os"
 	"path/filepath"
@@ -41,6 +40,6 @@ func ipcListen(endpoint string) (net.Listener, error) {
 }
 
 // newIPCConnection will connect to a Unix socket on the given endpoint.
-func newIPCConnection(ctx context.Context, endpoint string) (net.Conn, error) {
-	return dialContext(ctx, "unix", endpoint)
-}
+// func newIPCConnection(ctx context.Context, endpoint string) (net.Conn, error) {
+// 	return dialContext(ctx, "unix", endpoint)
+// }

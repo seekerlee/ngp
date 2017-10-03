@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"hello/ipc"
+	"ipc"
 	"io"
 	"net"
 	"os"
 	"runtime"
+	"strings"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 	if runtime.GOOS == "windows" {
 		endpoint = `\\.\pipe\` + endpoint
 	} else {
-		endpoint = os.TempDir() + "/" + endpoint
+		endpoint = strings.TrimSuffix(os.TempDir(), "/") + "/" + endpoint
 	}
 	listener, err := ipc.CreateIPCListener(endpoint)
 	if err != nil {
