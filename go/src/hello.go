@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"ipc"
 	"io"
@@ -10,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"encoding/binary"
 )
 
 func main() {
@@ -38,7 +38,6 @@ func main() {
 
 func write2js(msgWriter *bufio.Writer, go2jsMessage <-chan string) {
 	for {
-		// I will run forever
 		msg := <-go2jsMessage
 		fmt.Println("write to js: " + msg)
 		msgWriter.Write([]byte(msg))
@@ -46,6 +45,22 @@ func write2js(msgWriter *bufio.Writer, go2jsMessage <-chan string) {
 	}
 }
 
+func byteArr2Uint(p []byte) uint32 {
+    data := binary.BigEndian.Uint32(p)
+	fmt.Println(data)
+	return data
+}
+func uint2ByteArr(val uint32) []byte {
+	bs := make([]byte, 4)
+    binary.BigEndian.PutUint32(bs, val)
+	fmt.Println(bs)
+	return bs
+}
+// func main() {
+// 	fmt.Println("Hello, playground")
+// 	sss := sizeByteToSize([]byte{byte(0),byte(0),byte(3),byte(231)})
+// 	fmt.Println(sss)
+// }
 // Handles incoming requests.
 func handleRequest(conn net.Conn) {
 	msgReader := bufio.NewReader(conn)
@@ -62,28 +77,40 @@ func handleRequest(conn net.Conn) {
 	msgWriter.Flush()
 	go write2js(msgWriter, go2jsMessage)
 
-	var buffer bytes.Buffer
 readLoop:
 	for {
-		line, err := msgReader.ReadString('\n')
-		if line == "\n" {
-			// one piece of message received
-			message := buffer.String()
-			buffer.Reset()
-			handleStrings(message, go2jsMessage)
-		}
-		buffer.WriteString(line)
+		//line, err := msgReader.ReadString('\n')
+		sizebytes := make([]byte, 4)
+		line, err := msgReader.Read(sizebytes)
 		switch {
 		case err == io.EOF:
 			fmt.Println("Reached EOF - close this connection.")
 			break readLoop
 		case err != nil:
-			fmt.Println("\nError reading command. Got: '"+line+"'\n", err)
+			//fmt.Println("\nError reading command. Got: '"+line+"'\n", err)
 			if err != nil {
 				fmt.Println("Cannot write to connection.\n", err)
 			}
 			break readLoop
 		}
+		fmt.Println(line)
+		bodyLen := byteArr2Uint(sizebytes)
+		bodyBytes := make([]byte, bodyLen)
+		_, err2 := msgReader.Read(bodyBytes)
+		switch {
+		case err2 == io.EOF:
+			fmt.Println("Reached EOF - close this connection.")
+			break readLoop
+		case err2 != nil:
+			//fmt.Println("\nError reading command. Got: '"+line+"'\n", err)
+			if err2 != nil {
+				fmt.Println("Cannot write to connection.\n", err2)
+			}
+			break readLoop
+		}
+		// one piece of message received
+		message := string(bodyBytes[:])
+		handleStrings(message, go2jsMessage)
 	}
 
 }
