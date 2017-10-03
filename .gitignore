@@ -3,3 +3,5 @@ nodejs/src/node_modules/*
 go/pkg/*
 go/bin/*
 *.exe
+go/src/github.com/*
+go/src/sourcegraph.com/*
