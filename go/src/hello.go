@@ -82,10 +82,7 @@ func handleRequest(conn net.Conn) {
 }
 func handleStrings(cmd string, msgWriter *bufio.Writer) {
 	fmt.Println("handle: " + cmd)
-	longlongs := make([]byte, 999)
-	for i:= range longlongs {
-		longlongs[i] = 'b'
-	}
-	msgWriter.Write(longlongs)
+	
+	msgWriter.WriteString(cmd)
 	msgWriter.Flush()
 }
